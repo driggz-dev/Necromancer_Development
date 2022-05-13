@@ -45,11 +45,11 @@ std.EquipSkills.Cloth.enableAutolearn(NECROMANCER.Mask)
  .RaceClassInfos.add([NECROMANCER.Mask])
  .Name.enGB.set('Poison and Bones')
 
- const CURSES_AND_SHADOWS = std.SkillLines
- .create('Necromancer','Curses-and-Shadows-skill')
+ const CURSES_AND_BLOOD = std.SkillLines
+ .create('Necromancer','Curses-and-Blood-skill')
  .Category.CLASS.set()
  .RaceClassInfos.add([NECROMANCER.Mask])
- .Name.enGB.set('Curses and Shadow')
+ .Name.enGB.set('Curses and Blood')
 
  // Custom Weapon Type - Scythe
  std.DBC.ItemSubClass.add(12,14)
@@ -135,46 +135,54 @@ PLAGUE_BARRIER.Power.PowerType.set("MANA")
 PLAGUE_BARRIER.Mana.PowerCostPercent.set(25)
 PLAGUE_BARRIER.Effects.get(0).PointsBase.set(45)
 PLAGUE_BARRIER.Duration.setSimple(45000)
+PLAGUE_BARRIER.Attributes.USE_SPELL_CAST_EVENT.set(1)
 PLAGUE_BARRIER.Cooldown.set(45000)
 PLAGUE_BARRIER.Rank.set(1,1)
 PLAGUE_BARRIER.Attributes.CANNOT_USE_IN_COMBAT.set(0)
 const PLAGUE_BARRIER_VISUAL = PLAGUE_BARRIER.Visual.getRefCopy()
 const HEALING_TOUCH_VISUAL = std.Spells.load(30999).Visual.getRef()
 PLAGUE_BARRIER_VISUAL.CastKit.set(HEALING_TOUCH_VISUAL.CastKit.get())
-PLAGUE_BARRIER.Icon.set(210)
+PLAGUE_BARRIER.Icon.set(2025)
 
-// Bone Spears
-export const BONE_SPEARS = std.Spells.create('Necromancer','BoneSpear',23922)
-BONE_SPEARS.Name.set({enGB: 'Invoke Bone Spears'})
-BONE_SPEARS.AutoLearn.add(14, NECROMANCER.Mask)
-BONE_SPEARS.SkillLines.add(POISON_AND_BONES.ID)
-BONE_SPEARS.Description.enGB.set('The Necromancer summons four razor sharp bone spears to bypass armor and puncture the target for $s2 damage as Physical.')
-BONE_SPEARS.Power.PowerType.set("MANA")
-BONE_SPEARS.Mana.PowerCostPercent.set(5)
-BONE_SPEARS.Cooldown.set(7000)
-BONE_SPEARS.Range.setSimple(0,30)
-BONE_SPEARS.CastTime.setSimple(0)
-BONE_SPEARS.Rank.set(1,1)
-BONE_SPEARS.ItemEquips.set(-1, 0, 0)
-BONE_SPEARS.Effects.get(1).PointsBase.set(44)
-BONE_SPEARS.Effects.get(1).PointsDieSides.set(10)
-BONE_SPEARS.Attributes.IMPOSSIBLE_TO_DODGE_PARRY_BLOCK.set(1)
-BONE_SPEARS.Visual.getRefCopy().cloneFromVisual(15032) 
-BONE_SPEARS.Visual.modRefCopy(visual => visual
+// Corpse Lance (Rank 1)
+export const Corpse_Lance = std.Spells.create('Necromancer','CorpseLance',23922)
+Corpse_Lance.Name.set({enGB: 'Corpse Lance'})
+Corpse_Lance.AutoLearn.add(14, NECROMANCER.Mask)
+Corpse_Lance.SkillLines.add(POISON_AND_BONES.ID)
+Corpse_Lance.Description.enGB.set('The Necromancer summons four razor sharp bone spears to bypass armor and puncture the target for $s2 damage as Physical.')
+Corpse_Lance.Power.PowerType.set("MANA")
+Corpse_Lance.Mana.PowerCostPercent.set(0)
+Corpse_Lance.Mana.PowerCostBase.set(55)
+Corpse_Lance.Cooldown.set(7000)
+Corpse_Lance.Range.setSimple(0,30)
+Corpse_Lance.CastTime.setSimple(0)
+Corpse_Lance.CustomAttributes.IGNORE_ARMOR.set(1)
+Corpse_Lance.Rank.set(1,1)
+Corpse_Lance.ItemEquips.set(-1, 0, 0)
+Corpse_Lance.Effects.get(1).PointsBase.set(44)
+Corpse_Lance.Effects.get(1).PointsDieSides.set(10)
+Corpse_Lance.Attributes.IMPOSSIBLE_TO_DODGE_PARRY_BLOCK.set(1)
+Corpse_Lance.Visual.getRefCopy().cloneFromVisual(15032) 
+Corpse_Lance.Visual.modRefCopy(visual => visual
     .CastKit.modRefCopy(kit => kit
         .Animation.SPELL_CAST_DIRECTED.set()
     )
 )
-const BONE_SPEARS_VISUAL = BONE_SPEARS.Visual.getRefCopy()
+const Corpse_Lance_VISUAL = Corpse_Lance.Visual.getRefCopy()
 const REND_VISUAL = std.Spells.load(772).Visual.getRef()
-BONE_SPEARS.Effects.addGetTriggerSpell('NECROMANCER','SHATTEREDBONES4',80927)
+Corpse_Lance.Effects.addMod(eff=>eff
+    .Type.TRIGGER_SPELL.set()
+    // This Trigger Spell may need the ID changed. Look up "Corpse Lance Visual Trigger" if the ID is wrong, and set to the respective spell ID.
+    .TriggerSpell.set(80905)
+)
 
 // Cast Kit
-BONE_SPEARS_VISUAL.ImpactKit.set(REND_VISUAL.ImpactKit.get())
+Corpse_Lance_VISUAL.ImpactKit.set(REND_VISUAL.ImpactKit.get())
+Corpse_Lance.Icon.set(160)
 
-// TRIGGER SPELL VISUAL FOR BONE SPEARS
+// TRIGGER SPELL VISUAL FOR Corpse Lance
 export const SHATTERED_BONES = std.Spells.create('Necromancer','SHATTEREDBONES',67996)
-SHATTERED_BONES.Name.set({enGB: 'Bone Spears Visual Trigger'})
+SHATTERED_BONES.Name.set({enGB: 'Corpse Lance Visual Trigger'})
 SHATTERED_BONES.Power.PowerType.set("MANA")
 SHATTERED_BONES.Power.PowerCostPercent.set(0)
 SHATTERED_BONES.Mana.PowerCostBase.set(0)
@@ -186,16 +194,62 @@ const SHATTERED_BONES_VISUAL = SHATTERED_BONES.Visual.getRefCopy()
 // Cast Kit
 SHATTERED_BONES_VISUAL.ImpactKit.set(REND_VISUAL.ImpactKit.get())
 
+// Bone Spear (Rank 1)
+export const BONE_SPEAR = std.Spells.create('Necromancer','Bone_Spear',23922)
+BONE_SPEAR.Name.set({enGB: 'Bone Spear'})
+BONE_SPEAR.AutoLearn.add(12, NECROMANCER.Mask)
+BONE_SPEAR.SkillLines.add(POISON_AND_BONES.ID)
+BONE_SPEAR.Description.enGB.set('The Necromancer summons a large, razor sharp bone spear to bypass armor and puncture the target for $s2 damage as Physical.')
+BONE_SPEAR.Power.PowerType.set("MANA")
+BONE_SPEAR.Mana.PowerCostPercent.set(0)
+BONE_SPEAR.Mana.PowerCostBase.set(36)
+BONE_SPEAR.Cooldown.set(0)
+BONE_SPEAR.Range.setSimple(0,30)
+BONE_SPEAR.CustomAttributes.IGNORE_ARMOR.set(1)
+BONE_SPEAR.InterruptFlags.ON_MOVEMENT.set(1)
+BONE_SPEAR.CastTime.setSimple(2000)
+BONE_SPEAR.Rank.set(1,1)
+BONE_SPEAR.ItemEquips.set(-1, 0, 0)
+BONE_SPEAR.Effects.get(1).PointsBase.set(39)
+BONE_SPEAR.Effects.get(1).PointsDieSides.set(30)
+BONE_SPEAR.Attributes.IMPOSSIBLE_TO_DODGE_PARRY_BLOCK.set(1)
+BONE_SPEAR.Visual.modRefCopy(visual => visual
+    .CastKit.modRefCopy(kit => kit
+        .Animation.SPELL_CAST_DIRECTED.set()
+    )
+)
+// Trigger Spell
+BONE_SPEAR.Effects.addMod(eff=>eff
+    .Type.TRIGGER_SPELL.set()
+    // This Trigger Spell may need the ID changed. Look up "Bone Spear Visual Trigger" if the ID is wrong, and set to the respective spell ID.
+    .TriggerSpell.set(80926)
+)
+const BONE_SPEAR_VISUAL = BONE_SPEAR.Visual.getRefCopy()
+const THROW_SPEAR_VISUAL = std.Spells.load(75423).Visual.getRef()
+BONE_SPEAR_VISUAL.ImpactKit.set(REND_VISUAL.ImpactKit.get())
+BONE_SPEAR_VISUAL.PrecastKit.set(THROW_SPEAR_VISUAL.PrecastKit.get())
+BONE_SPEAR.Icon.set(600)
+
+// TRIGGER SPELL VISUAL FOR BONE SPEAR
+export const NIGHTBANE_BONE_SPEAR = std.Spells.create('Necromancer','NIGHTBANEBONESPEAR',67996)
+NIGHTBANE_BONE_SPEAR.Name.set({enGB: 'Bone Spear Visual Trigger'})
+NIGHTBANE_BONE_SPEAR.Power.PowerType.set("MANA")
+NIGHTBANE_BONE_SPEAR.Power.PowerCostPercent.set(0)
+NIGHTBANE_BONE_SPEAR.Mana.PowerCostBase.set(0)
+NIGHTBANE_BONE_SPEAR.Effects.get(0).PointsBase.set(0)
+NIGHTBANE_BONE_SPEAR.Effects.get(0).PointsDieSides.set(0)
+std.Spells.load(48430).Visual.getRef().Missile.Model.getRef().Scale.set(.6,.6,.6)
+NIGHTBANE_BONE_SPEAR.Visual.getRefCopy().cloneFromVisual(10772) 
 
 /******************************************************************
- * Curses & Shadow Spells
+ * Curses & Blood Spells
  ******************************************************************/
 
 // Bloodbolt Spell (Rank 1)
 
 const BLOODBOLT = std.Spells.create(MODNAME, 'Bloodbolt', 686)
 BLOODBOLT.Name.enGB.set('Bloodbolt');
-const BLOODBOLT_ABILITY = BLOODBOLT.SkillLines.add(CURSES_AND_SHADOWS.ID)
+const BLOODBOLT_ABILITY = BLOODBOLT.SkillLines.add(CURSES_AND_BLOOD.ID)
 BLOODBOLT_ABILITY.AutoLearn.add(1, NECROMANCER.Mask)
 
 const BLOODBOLT_VISUAL = BLOODBOLT.Visual.getRefCopy()
@@ -221,6 +275,37 @@ BLOODBOLT.Description.enGB.set('Manifest Shadow energy, and empower it with your
 BLOODBOLT.CastTime.setSimple(1500)
 BLOODBOLT.Rank.set(0,0)
 BLOODBOLT.Effects.get(0).PointsDieSides.set(0)
+BLOODBOLT.Icon.set(153)
+
+// Blood Rush
+
+const BLOOD_RUSH = std.Spells.create(MODNAME, 'Blood Rush', 31439)
+BLOOD_RUSH.Name.enGB.set('Blood Rush');
+const BLOOD_RUSH_ABILITY = BLOOD_RUSH.SkillLines.add(CURSES_AND_BLOOD.ID)
+BLOOD_RUSH_ABILITY.AutoLearn.add(1, NECROMANCER.Mask)
+
+const BLOOD_RUSH_VISUAL = BLOOD_RUSH.Visual.getRefCopy()
+
+// Precast Kit
+BLOOD_RUSH_VISUAL.PrecastKit.set(BLOOD_NOVA_VISUAL.PrecastKit.get())
+
+// Cast Kit
+BLOOD_RUSH_VISUAL.CastKit.set(BLOOD_NOVA_VISUAL.CastKit.get())
+
+// Impact Visual Kit
+BLOOD_RUSH_VISUAL.ImpactKit.set(VAMPIRIC_BOLT_VISUAL.ImpactKit.get())
+
+// Impact Area Visual Kit
+BLOOD_RUSH_VISUAL.ImpactAreaKit.set(0)
+
+//Spell Mods
+BLOOD_RUSH_ABILITY.Power.PowerType.set("HEALTH")
+BLOOD_RUSH.Power.PowerCostPercent.set(12.5)
+BLOOD_RUSH.Cooldown.set(0)
+BLOOD_RUSH.Icon.set(1741)
+BLOOD_RUSH.Description.enGB.set('The necromancer sheds $Ghis:her; mortal flesh to reappear 20 yards in $Ghis:her; front facing direction.')
+
+
 
 /******************************************************************
  * TRAINER
