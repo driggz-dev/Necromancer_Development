@@ -1,5 +1,7 @@
 const MODNAME = 'Necromancer'
 import { SQL, std } from "wow/wotlk";
+import { ScaleProcedure } from "wow/wotlk/std/Spell/SpellCharacterProcedure";
+import { VisualScale } from "wow/wotlk/std/Spell/SpellVisualEffect";
 
 // Starting Gear Creation
 const NECRO_STARTER_ROBE = std.Items
@@ -570,6 +572,28 @@ BONE_ARMOR12.Description.enGB.set('The necromancer incases $Ghimself:herself; wi
 BONE_ARMOR12.AuraDescription.enGB.set('A layer of 3 bones protects the Necromancer, absorbing $s1 damage for $d1 or until broken.')
 BONE_ARMOR12.Icon.set(2696)
 
+// Poison Nova Spell
+const Poison_Nova = std.Spells.create(MODNAME, 'PoisonNova', 59842)
+Poison_Nova.Name.enGB.set('Poison Nova ');
+Poison_Nova.SkillLines.add(POISON_AND_BONES.ID)
+Poison_Nova.Description.enGB.set("Expel an explosion outward from the Necromancer to deal $s1 Nature damage immediately to all enemies within 20 yards, and $s2 Nature damage every second for 10 seconds.")
+Poison_Nova.Power.PowerType.set("MANA")
+Poison_Nova.Cooldown.set(10000,1000,1000,1000)
+Poison_Nova.Mana.PowerCostBase.set(200)
+Poison_Nova.Mana.PowerCostPercent.set(15)
+Poison_Nova.CastTime.setSimple(0)
+Poison_Nova.Effects.get(0).PointsBase.set(256)
+Poison_Nova.Effects.get(0).PointsDieSides.set(104)
+Poison_Nova.Effects.get(1).PointsBase.set(120)
+Poison_Nova.Effects.get(1).PointsDieSides.set(68)
+Poison_Nova.Visual.getRefCopy().cloneFromVisual(10241)
+Poison_Nova.Visual.modRefCopy(visual => visual
+    .CastKit.modRefCopy(kit => kit
+        .Animation.SPELL_CAST_OMNI.set()
+    )
+)
+
+
 /******************************************************************
  * Curses & Blood Spells
  ******************************************************************/
@@ -579,6 +603,7 @@ const BLOODBOLT = std.Spells.create(MODNAME, 'Bloodbolt', 686)
 BLOODBOLT.Name.enGB.set('Bloodbolt');
 const BLOODBOLT_ABILITY = BLOODBOLT.SkillLines.add(CURSES_AND_BLOOD.ID)
 BLOODBOLT_ABILITY.AutoLearn.add(1, NECROMANCER.Mask)
+BLOODBOLT.Subtext.clear()
 
 const BLOODBOLT_VISUAL = BLOODBOLT.Visual.getRefCopy()
 const VAMPIRIC_BOLT_VISUAL = std.Spells.load(51016).Visual.getRef()
@@ -678,17 +703,55 @@ DECREPIFY.Effects.get(2).PointsDieSides.set(1)
 DECREPIFY.Description.enGB.set('Cast upon the target a devastating curse, reducing damage dealt by $s1%, movement speed by $s2%, and also reduces melee attack speed by $s3%.')
 DECREPIFY.AuraDescription.enGB.set('Damage dealt is reduced by $s1%, movement speed by $s2%, and also reduces melee attack speed by $s3%.')
 DECREPIFY.Icon.set(1910)
+const CAST_VISUAL = std.Spells.load(58842).Visual.getRef()
+const DECREPIFY_VISUAL = DECREPIFY.Visual.getRefCopy()
+DECREPIFY_VISUAL.CastKit.set(CAST_VISUAL.CastKit.get())
 // Decrepify needs trigger spell bc slow doesnt work, need to test to see if the damage works etc too
 
-// Simulacrum Trigger Spell
-const Simulacrum_Trigger = std.Spells.create(MODNAME, 'Simulacrum_Trigger', 58836)
-Simulacrum_Trigger.Name.enGB.set('Simulacrum Trigger');
-Simulacrum_Trigger.SkillLines.add(CURSES_AND_BLOOD.ID)
+// Blood Images for Simulacrum
+export const BLOODIMAGE = std.CreatureTemplates.create(MODNAME, 'BloodImage', 31216)
+BLOODIMAGE.Name.enGB.set("Blood Image")
+BLOODIMAGE.Scale.set(1)
+BLOODIMAGE.MovementSpeed.set(1.0)
+BLOODIMAGE.Stats.DamageMod.set(2.5)
+BLOODIMAGE.UnitClass.PALADIN.set()
+BLOODIMAGE.PetSpells.set(BLOODBOLT.ID)
+BLOODIMAGE.Stats.HealthMod.set(1.0)
+BLOODIMAGE.Rank.NORMAL.set()
+const CREATURE_SPELL_DATA_ID2 = 700001
+const abc = std.DBC.CreatureSpellData.add(CREATURE_SPELL_DATA_ID2)
+abc.Spells.set([BLOODBOLT.ID])
+abc.Availability.set([0, 0])
+BLOODIMAGE.row.PetSpellDataId.set(CREATURE_SPELL_DATA_ID2)
+
+// Simulacrum Trigger Image 1 Spell
+const Simulacrum_Trigger1 = std.Spells.create(MODNAME, 'Simulacrum_Trigger_Image1', 58833)
+Simulacrum_Trigger1.Name.enGB.set('Simulacrum Trigger Image 1');
+Simulacrum_Trigger1.Effects.get(0).MiscValueA.set(BLOODIMAGE.ID);
+
+// Simulacrum Trigger Image 2 Spell
+const Simulacrum_Trigger2 = std.Spells.create(MODNAME, 'Simulacrum_Trigger_Image2', 58831)
+Simulacrum_Trigger2.Name.enGB.set('Simulacrum Trigger Image 2');
+Simulacrum_Trigger2.Effects.get(0).MiscValueA.set(BLOODIMAGE.ID);
+
+// Simulacrum Trigger Image 3 Spell
+const Simulacrum_Trigger3 = std.Spells.create(MODNAME, 'Simulacrum_Trigger_Image3', 58834)
+Simulacrum_Trigger3.Name.enGB.set('Simulacrum Trigger Image 3');
+Simulacrum_Trigger3.Effects.get(0).MiscValueA.set(BLOODIMAGE.ID);
+
+// Simulacrum Trigger All Images Spell
+const Simulacrum_Trigger = std.Spells.create(MODNAME, 'Simulacrum_Trigger_Images', 58832)
+Simulacrum_Trigger.Name.enGB.set('Simulacrum Trigger Images');
+Simulacrum_Trigger.Effects.get(0).TriggerSpell.set(Simulacrum_Trigger1.ID)
+Simulacrum_Trigger.Effects.get(1).TriggerSpell.set(Simulacrum_Trigger2.ID)
+Simulacrum_Trigger.Effects.get(2).TriggerSpell.set(Simulacrum_Trigger3.ID)
 
 // Simulacrum Spell
 const Simulacrum = std.Spells.create(MODNAME, 'Simulacrum', 55342)
 Simulacrum.Name.enGB.set('Simulacrum');
 Simulacrum.SkillLines.add(CURSES_AND_BLOOD.ID)
+Simulacrum.Effects.get(1).TriggerSpell.set(Simulacrum_Trigger.ID)
+
 
 
 
